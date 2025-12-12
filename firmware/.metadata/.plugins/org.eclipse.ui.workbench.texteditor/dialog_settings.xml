@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<item key="replaceBarOpen" value="false"/>
+	<list key="searchhistory">
+		<item value="qei"/>
+		<item value="QEIAngularVelocity"/>
+		<item value="R"/>
+		<item value="QEIRead"/>
+		<item value="QEI"/>
+		<item value="QEIraw"/>
+		<item value="feedback_pub"/>
+		<item value="gain"/>
+		<item value="ref_sub"/>
+		<item value="gain_sub"/>
+		<item value="gain_sub_msg"/>
+		<item value="gain_sub_msg.data.data[0]"/>
+		<item value="gain_"/>
+		<item value="ref"/>
+		<item value="ref\"/>
+	</list>
+</section>

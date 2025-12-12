@@ -1,0 +1,692 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2025 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "cmsis_os.h"
+#include "dma.h"
+#include "usart.h"
+#include "tim.h"
+#include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include <rcl/rcl.h>
+#include <rcl/error_handling.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
+#include <uxr/client/transport.h>
+#include <rmw_microxrcedds_c/config.h>
+#include <rmw_microros/rmw_microros.h>
+#include <rcl/init_options.h>
+#include <std_msgs/msg/int32.h>
+#include <std_msgs/msg/float32_multi_array.h>
+#include <math.h>
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+#define RCSOFTCHECK(fn) if (fn != RCL_RET_OK) {};
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+
+//==========ROS2 configuration==========
+	rclc_support_t support;
+	rcl_allocator_t allocator;
+	rcl_node_t node;
+	rcl_init_options_t init_options;
+
+	rcl_timer_t timer;
+	rcl_timer_t timer1;
+	rclc_executor_t executor;
+
+	// ------- Publisher -------
+	// pub feedback from motor ['pos', 'vel']
+	rcl_publisher_t feedback_pub;
+	std_msgs__msg__Float32MultiArray feedback_pub_msg;
+
+	// ------- Subscriber -------
+	// Reference command ['pos_ref', 'vel_ref', 'torque_ref']
+	rcl_subscription_t ref_sub;
+	std_msgs__msg__Float32MultiArray ref_sub_msg;
+
+	// Gain ['Kp', 'Kd', 'Kt', 'Ke', 'R']
+	rcl_subscription_t gain_sub;
+	std_msgs__msg__Float32MultiArray gain_sub_msg;
+
+	// RL Policy action / command (Voltage)
+	rcl_subscription_t rl_action_sub;
+	std_msgs__msg__Float32MultiArray rl_action_msg;
+
+
+//======Parameter configuration======
+	// Counter Period
+	#define PERIOD_CONST            65535
+	#define MOTOR_INIT_PERIOD_CONST 2300
+	#define V_MAX					12
+
+	static const int pwm_operated = PERIOD_CONST - MOTOR_INIT_PERIOD_CONST;
+
+	// QEI read
+	uint32_t QEIReadRaw;
+	float pos_rad = 0; // pos in rad 1 round
+	float pos_rad_full = 0; // pos in rad 21 round
+
+	// Motor feedback variable
+	typedef struct
+	{
+	uint32_t Position[2];
+	uint64_t TimeStamp[2];
+	float QEIPostion_1turn;
+	float QEIAngularVelocity;
+	}QEI_StructureTypeDef;
+	QEI_StructureTypeDef QEIdata = {0};
+	QEI_StructureTypeDef QEI_ROS = {0};
+
+	// Kalman Filter
+	typedef struct {
+	    float pos;      // State: Position (rad)
+	    float vel;      // State: Velocity (rad/s)
+	    float P[2][2];  // Covariance Matrix
+	    float Q[2];     // Process Noise [Pos_variance, Vel_variance]
+	    float R;        // Measurement Noise variance
+	} KalmanFilter_t;
+	KalmanFilter_t kf_motor;
+	float kalman_continuous_pos_rad = 0.0f; // Unwrapped position for KF
+	float kf_vel_output = 0.0f;             // Final filtered velocity to use
+
+	uint64_t _micros = 0;
+	enum {
+	NEW, OLD
+	};
+
+	// Motor control variable
+	int32_t pwm_value = 0;
+	float vol_pos = 0.0f;
+	float vol_cmd = 0.0f;
+	float vol_torque = 0.0f;
+	float vol_vel = 0.0f;
+
+	// Temp var
+	float loop_period_us = 0.0f;
+	float loop_freq = 0.0f;
+	uint64_t last_time_us = 0;
+
+	float raw_vel_debug = 0;
+
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
+/* USER CODE BEGIN PFP */
+
+	// ROS
+	bool cubemx_transport_open(struct uxrCustomTransport *transport);
+	bool cubemx_transport_close(struct uxrCustomTransport *transport);
+	size_t cubemx_transport_write(struct uxrCustomTransport *transport,
+			const uint8_t *buf, size_t len, uint8_t *err);
+	size_t cubemx_transport_read(struct uxrCustomTransport *transport, uint8_t *buf,
+			size_t len, int timeout, uint8_t *err);
+
+	void* microros_allocate(size_t size, void *state);
+	void microros_deallocate(void *pointer, void *state);
+	void* microros_reallocate(void *pointer, size_t size, void *state);
+	void* microros_zero_allocate(size_t number_of_elements, size_t size_of_element,
+			void *state);
+
+	uint64_t micros();
+
+	// Microcon
+	void QEIEncoderPosVel_Update();
+	void Kalman_Init(KalmanFilter_t *kf, float Q_pos, float Q_vel, float R_measure);
+	void Kalman_Predict_Update(KalmanFilter_t *kf, float measured_pos, float dt);
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+// MIT Controller calculation function
+void MIT_Controller_Update(void) {
+	// ref
+	float pos_ref = ref_sub_msg.data.data[0];
+	// gain
+	float vel_ref = ref_sub_msg.data.data[1];
+	float torque_ref = ref_sub_msg.data.data[2];
+
+	// feedback
+	float pos = pos_rad_full;
+
+//	float vel = QEIdata.QEIAngularVelocity;
+	float vel = kf_vel_output;
+
+	// gain
+	float Kp = gain_sub_msg.data.data[0];
+	float Kd = gain_sub_msg.data.data[1];
+	float Kt = gain_sub_msg.data.data[2];
+	float Ke = gain_sub_msg.data.data[3];
+	float R = gain_sub_msg.data.data[4];
+	if (Kt == 0.0)
+		Kt = 1e-13;
+
+	//===== MIT controller (Comment this if using RL policy)======
+	vol_pos = (pos_ref - pos) * Kp;
+	vol_vel = (vel_ref - vel) * Kd;
+	vol_torque = torque_ref * R / Kt;
+	vol_cmd = vol_torque + vol_pos + vol_vel;
+
+	//===== RL policy (Comment this if using MIT controller)=====
+//	vol_cmd = rl_action_msg.data.data[0];
+
+	//====== V_out Saturate ======
+	if (vol_cmd > 12) {
+		vol_cmd = 12;
+	} else if (vol_cmd < -12) {
+		vol_cmd = -12;
+	}
+
+	// Apply voltage to motor (convert to PWM value)
+	pwm_value = (vol_cmd / 12) * PERIOD_CONST;	// Mapping V_cmd to PWM in range
+
+	// Set motor control
+	if (pwm_value >= 0) {
+		__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pwm_value);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+	} else {
+		__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, abs(pwm_value));
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+	}
+}
+
+// --- Kalman Filter Implementation ---
+void Kalman_Init(KalmanFilter_t *kf, float Q_pos, float Q_vel, float R_measure) {
+    kf->pos = 0.0f;
+    kf->vel = 0.0f;
+    kf->Q[0] = Q_pos;
+    kf->Q[1] = Q_vel;
+    kf->R = R_measure;
+
+    // Initial Covariance (High uncertainty initially)
+    kf->P[0][0] = 1.0f; kf->P[0][1] = 0.0f;
+    kf->P[1][0] = 0.0f; kf->P[1][1] = 1.0f;
+}
+
+void Kalman_Predict_Update(KalmanFilter_t *kf, float measured_pos, float dt) {
+    if (dt <= 0.0f) return;
+
+    // 1. Prediction Step (Model: pos = pos + vel*dt, vel = vel)
+    float pos_pred = kf->pos + kf->vel * dt;
+    float vel_pred = kf->vel;
+
+    // Predict Covariance: P = A*P*A' + Q
+    // A = [[1, dt], [0, 1]]
+    float P00_temp = kf->P[0][0] + dt * (kf->P[1][0] + kf->P[0][1]) + dt * dt * kf->P[1][1] + kf->Q[0];
+    float P01_temp = kf->P[0][1] + dt * kf->P[1][1];
+    float P10_temp = kf->P[1][0] + dt * kf->P[1][1];
+    float P11_temp = kf->P[1][1] + kf->Q[1];
+
+    // 2. Update Step
+    // Innovation: y = z - Hx_pred
+    float y = measured_pos - pos_pred;
+
+    // Innovation Covariance: S = H*P*H' + R
+    float S = P00_temp + kf->R;
+
+    // Kalman Gain: K = P*H' * inv(S)
+    float K0 = P00_temp / S;
+    float K1 = P10_temp / S;
+
+    // Update State
+    kf->pos = pos_pred + K0 * y;
+    kf->vel = vel_pred + K1 * y;
+
+    // Update Covariance: P = (I - K*H) * P_pred
+    kf->P[0][0] = (1.0f - K0) * P00_temp;
+    kf->P[0][1] = (1.0f - K0) * P01_temp;
+    kf->P[1][0] = -K1 * P00_temp + P10_temp; // Simplified matrix math
+    kf->P[1][1] = -K1 * P01_temp + P11_temp;
+}
+
+// Micro-second
+uint64_t micros() {
+	return __HAL_TIM_GET_COUNTER(&htim5) + _micros;
+}
+
+// Calculate pos and velo from encoder
+void QEIEncoderPosVel_Update() {
+	// collect data
+	QEIdata.TimeStamp[NEW] = micros();
+	QEIdata.Position[NEW] = __HAL_TIM_GET_COUNTER(&htim3);
+
+	// Position 1 turn calculation
+	QEIdata.QEIPostion_1turn = QEIdata.Position[NEW] % 3072;
+
+	// calculate dx
+	int32_t diffPosition = QEIdata.Position[NEW] - QEIdata.Position[OLD];
+
+	// Handle Warp around
+	if (diffPosition > (65535 / 2))
+		diffPosition -= 65535;
+	else if (diffPosition < -(65535 / 2))
+		diffPosition += 65535;
+
+	// calculate dt
+	float diffTime = (QEIdata.TimeStamp[NEW] - QEIdata.TimeStamp[OLD])
+			* 0.000001f;
+
+//	// calculate anglar velocity
+//	QEIdata.QEIAngularVelocity = (float) diffPosition / diffTime
+//			/ 3072.0* 2 * M_PI;
+
+	raw_vel_debug = (float) diffPosition / diffTime / 3072.0* 2 * M_PI;
+
+	// Basic calculation (for reference/fallback)
+	if (diffTime > 0.0f) {
+		QEIdata.QEIAngularVelocity = (float) diffPosition / diffTime / 3072.0f * 2.0f * M_PI;
+	} else {
+		diffTime = 0.001f; // Safety fallback to 1ms
+	}
+
+	// --- KALMAN FILTER UPDATE ---
+	// 1. Convert diffPosition to Radians
+	float diffRad = ((float)diffPosition / 3072.0f) * 2.0f * M_PI;
+
+	// 2. Accumulate Continuous Position (Resolves wrapping issue for the Filter)
+	kalman_continuous_pos_rad += diffRad;
+
+	// 3. Run Filter
+	Kalman_Predict_Update(&kf_motor, kalman_continuous_pos_rad, diffTime);
+
+	// 4. Store Output
+	kf_vel_output = kf_motor.vel;
+	// ----------------------------
+
+	// store value for next loop
+	QEIdata.Position[OLD] = QEIdata.Position[NEW];
+	QEIdata.TimeStamp[OLD] = QEIdata.TimeStamp[NEW];
+}
+
+void timer_callback(rcl_timer_t *timer, int64_t last_call_time) // 1000 Hz
+{
+	QEIReadRaw = __HAL_TIM_GET_COUNTER(&htim3);
+
+	QEIEncoderPosVel_Update();
+
+	pos_rad = (QEIReadRaw % 3072) / 3072.0 * 2 * M_PI;
+	pos_rad_full = QEIReadRaw / 3072.0 * 2 * M_PI;
+
+	MIT_Controller_Update();
+}
+
+void timer_callback1(rcl_timer_t *timer, int64_t last_call_time) // 100 Hz
+{
+
+	feedback_pub_msg.data.data[0] = pos_rad_full;
+	feedback_pub_msg.data.data[1] = kf_vel_output;
+	feedback_pub_msg.data.data[2] = vol_cmd;
+//	feedback_pub_msg.data.data[2] = raw_vel_debug; // for vel control checking
+//	feedback_pub_msg.data.data[2] = pos_rad_full - ref_sub_msg.data.data[0];
+
+	RCSOFTCHECK(rcl_publish(&feedback_pub, &feedback_pub_msg, NULL));
+}
+
+void reference_subscription_callback(const void *msgin) {
+	// Cast received message to used type
+	const std_msgs__msg__Float32MultiArray *ref_sub_msg =
+			(const std_msgs__msg__Float32MultiArray*) msgin;
+}
+
+void gain_subscription_callback(const void *msgin) {
+	// Cast received message to used type
+	const std_msgs__msg__Float32MultiArray *gain_sub_msg =
+			(const std_msgs__msg__Float32MultiArray*) msgin;
+}
+
+void rl_action_subscription_callback(const void *msgin) {
+	// Cast received message to used type
+	const std_msgs__msg__Float32MultiArray *rl_action_msg =
+			(const std_msgs__msg__Float32MultiArray*) msgin;
+
+}
+
+void StartDefaultTask(void *argument) {
+	/* USER CODE BEGIN 5 */
+
+	// micro-ROS configuration
+	rmw_uros_set_custom_transport(
+	true, (void*) &hlpuart1, cubemx_transport_open, cubemx_transport_close,
+			cubemx_transport_write, cubemx_transport_read);
+
+	rcl_allocator_t freeRTOS_allocator =
+			rcutils_get_zero_initialized_allocator();
+	freeRTOS_allocator.allocate = microros_allocate;
+	freeRTOS_allocator.deallocate = microros_deallocate;
+	freeRTOS_allocator.reallocate = microros_reallocate;
+	freeRTOS_allocator.zero_allocate = microros_zero_allocate;
+
+	if (!rcutils_set_default_allocator(&freeRTOS_allocator)) {
+		printf("Error on default allocators (line %d)\n", __LINE__);
+	}
+
+	// micro-ROS app
+	allocator = rcl_get_default_allocator();
+
+	//create init_options
+	// Initialize and modify options (Set DOMAIN ID to 16)
+	init_options = rcl_get_zero_initialized_init_options();
+	RCSOFTCHECK(rcl_init_options_init(&init_options, allocator));
+	RCSOFTCHECK(rcl_init_options_set_domain_id(&init_options, 16));
+
+	rclc_support_init_with_options(&support, 0, NULL, &init_options,
+			&allocator);
+
+	// create node
+	rclc_node_init_default(&node, "motor_node", "", &support);
+
+	// create timer
+	rclc_timer_init_default(&timer, &support,
+	RCL_MS_TO_NS(1), timer_callback);
+
+	rclc_timer_init_default(&timer1, &support,
+	RCL_MS_TO_NS(10), timer_callback1);
+
+	// Initialize Kalman Filter
+	// Q_pos: 0.001 (Trust model pos slightly)
+	// Q_vel: 10.0  (Allow velocity to change rapidly)
+	// R: 0.1       (Measurement noise covariance)
+	Kalman_Init(&kf_motor, 0.001f, 10.0f, 0.1f);
+
+	feedback_pub_msg.data.capacity = 3; // จำนวนข้อมูลสูงสุด ['pos', 'vel', 'vol_cmd']
+	feedback_pub_msg.data.size = 3;
+	feedback_pub_msg.data.data = (float*) malloc(
+			feedback_pub_msg.data.capacity * sizeof(float));
+	rclc_publisher_init_default(&feedback_pub, &node,
+			ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32MultiArray),
+			"motor_feedback_publisher");
+
+	// create subscription for command
+	ref_sub_msg.data.capacity = 3; // จำนวนข้อมูลสูงสุด ['pos', 'vel', 'torque']
+	ref_sub_msg.data.size = 3;      // จำนวนข้อมูลที่จะส่ง
+	ref_sub_msg.data.data = (float*) malloc(
+			ref_sub_msg.data.capacity * sizeof(float));
+	// Initialize with default values
+	if (ref_sub_msg.data.data != NULL) {
+		ref_sub_msg.data.data[0] = 0.0f;
+		ref_sub_msg.data.data[1] = 0.0f;
+		ref_sub_msg.data.data[2] = 0.0f;
+	}
+
+	// rcl_ret_t rc = rclc_subscription_init_default(&ref_sub, &node, type_support, topic_name);
+	rcl_ret_t rc = rclc_subscription_init_default(&ref_sub, &node,
+			ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32MultiArray),
+			"reference_subscription");
+
+	// create subscription for gain
+	gain_sub_msg.data.capacity = 5; // จำนวนข้อมูลสูงสุด ['Kp', 'Kd', 'Kt', 'Ke', 'r']
+	gain_sub_msg.data.size = 5;      // จำนวนข้อมูลที่จะส่ง
+	gain_sub_msg.data.data = (float*) malloc(
+			gain_sub_msg.data.capacity * sizeof(float));
+
+	// Initialize with default values
+	if (gain_sub_msg.data.data != NULL) {
+		gain_sub_msg.data.data[0] = 2.0f;  // Kp 2
+		gain_sub_msg.data.data[1] = 0.5f;  // Kd 1 or maybe 4.52
+		gain_sub_msg.data.data[2] = 0.0146f * 64.0;  // Kt 0.0146
+		gain_sub_msg.data.data[3] = 0.0134f * 64.0;  // Ke 0.0134
+		gain_sub_msg.data.data[4] = 1.93f;  // R 1.93
+	}
+
+	// create subscription for RL action
+	rl_action_msg.data.capacity = 1; // จำนวนข้อมูลสูงสุด ['pos', 'vel', 'torque']
+	rl_action_msg.data.size = 1;      // จำนวนข้อมูลที่จะส่ง
+	rl_action_msg.data.data = (float*) malloc(
+			rl_action_msg.data.capacity * sizeof(float));
+	// Initialize with default values
+	if (rl_action_msg.data.data != NULL) {
+		rl_action_msg.data.data[0] = 0.0f;
+	}
+
+	rcl_ret_t rl = rclc_subscription_init_default(&rl_action_sub, &node,
+			ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32MultiArray),
+			"rl_action_subscription");
+
+	// rcl_ret_t rc = rclc_subscription_init_default(&ref_sub, &node, type_support, topic_name);
+	rcl_ret_t puku = rclc_subscription_init_default(&gain_sub, &node,
+			ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32MultiArray),
+			"gain_subscription");
+
+	// create executor
+	executor = rclc_executor_get_zero_initialized_executor();
+	rclc_executor_init(&executor, &support.context, 5, &allocator);
+	rclc_executor_set_timeout(&executor, RCL_MS_TO_NS(1));
+	rclc_executor_add_timer(&executor, &timer);
+	rclc_executor_add_timer(&executor, &timer1);
+
+	// rclc executor for reference
+	// rclc_executor_add_subscription(&executor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA);
+	rclc_executor_add_subscription(&executor, &ref_sub, &ref_sub_msg,
+			&reference_subscription_callback, ON_NEW_DATA);
+
+	// rclc executor for gain
+	rclc_executor_add_subscription(&executor, &gain_sub, &gain_sub_msg,
+			&gain_subscription_callback, ON_NEW_DATA);
+
+	// rclc executor for gain
+	rclc_executor_add_subscription(&executor, &rl_action_sub, &rl_action_msg,
+			&rl_action_subscription_callback, ON_NEW_DATA);
+
+	// create message
+//  pub_msg.data = 0;
+	rclc_executor_spin(&executor);
+
+	for (;;) {
+//  rclc_executor_spin_some(&executor, RCL_MS_TO_NS(1));
+		osDelay(1);
+	}
+
+}
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_LPUART1_UART_Init();
+  MX_TIM8_Init();
+  MX_TIM3_Init();
+  MX_TIM5_Init();
+  MX_TIM4_Init();
+  /* USER CODE BEGIN 2 */
+  // control motor
+  HAL_TIM_Base_Start(&htim8);
+  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+
+  // motor
+  HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL); // read pos
+  HAL_TIM_Base_Start_IT(&htim5); // cal vel
+  /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Configure the main internal regulator output voltage
+  */
+  HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
+  RCC_OscInitStruct.PLL.PLLN = 85;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
+/* USER CODE BEGIN 4 */
+
+/* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM1 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  if (htim == &htim5)
+  {
+	  _micros += UINT32_MAX;
+  }
+
+  /* USER CODE END Callback 1 */
+}
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */
+}
+#ifdef USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */

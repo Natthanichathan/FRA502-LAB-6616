@@ -1,0 +1,114 @@
+2025-12-06 00:02:38,527 [INFO] UtilMem:75 - End SaveConfig() Used Memory: 335461248 Bytes (843055104)
+2025-12-06 00:02:41,856 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: FREERTOS
+2025-12-06 00:02:41,856 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: TIM1_8G4
+2025-12-06 00:02:41,856 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: TIM1_8G4
+2025-12-06 00:02:41,856 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: TIM1_8G4
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: SYS
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: RCC
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: LPUART
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: NVIC
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: DMA
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: TIM1_8G4
+2025-12-06 00:02:41,857 [INFO] BlockDiagram:2775 - set Specific Code input for plugin: GPIO
+2025-12-06 00:02:41,857 [INFO] CodeGenerator:892 - code generatio: config db path: /opt/st/stm32cubeide_1.19.0/plugins/com.st.stm32cube.common.mx_6.15.0.202507011659//db/
+2025-12-06 00:02:42,320 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/license.tmp_save
+2025-12-06 00:02:42,603 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/license.tmp
+2025-12-06 00:02:42,730 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/gpio.c_save
+2025-12-06 00:02:42,839 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/gpio.c
+2025-12-06 00:02:42,842 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/gpio.h_save
+2025-12-06 00:02:42,918 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/gpio.h
+2025-12-06 00:02:43,435 [INFO] Middleware:1452 - No code input for Bsp Dependency
+2025-12-06 00:02:43,452 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_inc.tmp_save
+2025-12-06 00:02:43,495 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_inc.tmp
+2025-12-06 00:02:43,496 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelInit.tmp_save
+2025-12-06 00:02:43,542 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelInit.tmp
+2025-12-06 00:02:43,543 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelStart.tmp_save
+2025-12-06 00:02:43,583 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelStart.tmp
+2025-12-06 00:02:43,584 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_typedefs.tmp_save
+2025-12-06 00:02:43,627 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_typedefs.tmp
+2025-12-06 00:02:43,628 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_vars.tmp_save
+2025-12-06 00:02:43,671 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_vars.tmp
+2025-12-06 00:02:43,672 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_pfp.tmp_save
+2025-12-06 00:02:43,708 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_pfp.tmp
+2025-12-06 00:02:43,709 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_obj_creat.tmp_save
+2025-12-06 00:02:43,747 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_obj_creat.tmp
+2025-12-06 00:02:43,761 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_default_thread.tmp_save
+2025-12-06 00:02:43,799 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_default_thread.tmp
+2025-12-06 00:02:43,800 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_threads.tmp_save
+2025-12-06 00:02:43,855 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_threads.tmp
+2025-12-06 00:02:43,863 [INFO] Middleware:1452 - No code input for Bsp Dependency
+2025-12-06 00:02:43,866 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_inc.tmp_save
+2025-12-06 00:02:43,912 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_inc.tmp
+2025-12-06 00:02:43,913 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelInit.tmp_save
+2025-12-06 00:02:43,972 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelInit.tmp
+2025-12-06 00:02:43,973 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelStart.tmp_save
+2025-12-06 00:02:44,009 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_kernelStart.tmp
+2025-12-06 00:02:44,011 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_typedefs.tmp_save
+2025-12-06 00:02:44,048 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_typedefs.tmp
+2025-12-06 00:02:44,049 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_vars.tmp_save
+2025-12-06 00:02:44,087 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_vars.tmp
+2025-12-06 00:02:44,088 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_pfp.tmp_save
+2025-12-06 00:02:44,126 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_pfp.tmp
+2025-12-06 00:02:44,127 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_obj_creat.tmp_save
+2025-12-06 00:02:44,165 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_obj_creat.tmp
+2025-12-06 00:02:44,166 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_default_thread.tmp_save
+2025-12-06 00:02:44,203 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_default_thread.tmp
+2025-12-06 00:02:44,204 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_threads.tmp_save
+2025-12-06 00:02:44,241 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/rtos_threads.tmp
+2025-12-06 00:02:44,243 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/FreeRTOSConfig.h_save
+2025-12-06 00:02:44,296 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/FreeRTOSConfig.h
+2025-12-06 00:02:44,298 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/app_freertos.c_save
+2025-12-06 00:02:44,344 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/app_freertos.c
+2025-12-06 00:02:44,383 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/dma.c_save
+2025-12-06 00:02:44,422 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/dma.c
+2025-12-06 00:02:44,424 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/dma.h_save
+2025-12-06 00:02:44,465 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/dma.h
+2025-12-06 00:02:44,469 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/usart.c_save
+2025-12-06 00:02:44,557 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/usart.c
+2025-12-06 00:02:44,558 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/usart.h_save
+2025-12-06 00:02:44,598 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/usart.h
+2025-12-06 00:02:44,601 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/tim.c_save
+2025-12-06 00:02:44,669 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/tim.c
+2025-12-06 00:02:44,671 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/tim.h_save
+2025-12-06 00:02:44,710 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/tim.h
+2025-12-06 00:02:44,738 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_it.c_save
+2025-12-06 00:02:44,803 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_it.c
+2025-12-06 00:02:44,804 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/stm32g4xx_it.h_save
+2025-12-06 00:02:44,854 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/stm32g4xx_it.h
+2025-12-06 00:02:44,872 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_hal_msp.c_save
+2025-12-06 00:02:44,933 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_hal_msp.c
+2025-12-06 00:02:44,934 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/system.tmp_save
+2025-12-06 00:02:44,971 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/MXTmpFiles/system.tmp
+2025-12-06 00:02:44,982 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_hal_timebase_tim.c_save
+2025-12-06 00:02:45,023 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/stm32g4xx_hal_timebase_tim.c
+2025-12-06 00:02:45,041 [INFO] CodeEngine:321 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/stm32g4xx_hal_conf.h_save
+2025-12-06 00:02:45,081 [INFO] CodeEngine:345 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/stm32g4xx_hal_conf.h
+2025-12-06 00:02:45,092 [WARN] IPConfigManager:3238 - Warning: the RefConfig RCC_CommonPeriphClockConfig is not available in your config.xml file
+2025-12-06 00:02:45,104 [INFO] ApiDbMcu:532 - Load IP Config File for LPUART1
+2025-12-06 00:02:45,115 [INFO] ApiDbMcu:532 - Load IP Config File for TIM3
+2025-12-06 00:02:45,125 [INFO] ApiDbMcu:532 - Load IP Config File for TIM4
+2025-12-06 00:02:45,133 [INFO] ApiDbMcu:532 - Load IP Config File for TIM5
+2025-12-06 00:02:45,143 [INFO] ApiDbMcu:532 - Load IP Config File for TIM8
+2025-12-06 00:02:45,145 [INFO] ApiDbMcu:532 - Load IP Config File for RCC
+2025-12-06 00:02:45,149 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/main.h_save
+2025-12-06 00:02:45,212 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Inc/main.h
+2025-12-06 00:02:45,214 [INFO] CodeEngine:265 - oldGeneratedFile, /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/main.c_save
+2025-12-06 00:02:45,291 [INFO] CodeEngine:289 - Generated code: /home/natthanicha/FRA502_ROS2/ROS_PROJECT_WS/firmware/motor_controller/Core/Src/main.c
+2025-12-06 00:02:46,324 [INFO] ProjectBuilder:3606 - Time for Copy HAL[1] : 819mS.
+2025-12-06 00:02:46,328 [INFO] ProjectBuilder:5216 - Project Generator version: 4.7.0-B52
+2025-12-06 00:02:46,394 [INFO] ConfigFileManager:1595 - The Die is : DIE469
+2025-12-06 00:02:46,445 [INFO] ApiDbMcu:532 - Load IP Config File for FATFS
+2025-12-06 00:02:46,531 [INFO] ApiDbMcu:532 - Load IP Config File for USBPD
+2025-12-06 00:02:46,613 [INFO] ApiDbMcu:532 - Load IP Config File for USB_DEVICE
+2025-12-06 00:02:48,146 [INFO] ProjectBuilder:5496 - Time for Generating toolchain IDE Files: 1817mS.
+2025-12-06 00:02:48,146 [INFO] ProjectBuilder:3463 - Time for Copy CMSIS : 0mS.
+2025-12-06 00:02:48,147 [INFO] ProjectBuilder:3463 - Time for Copy CMSIS : 0mS.
+2025-12-06 00:03:29,173 [INFO] WebApp:194 - Connection lost
+2025-12-06 00:03:29,370 [INFO] WebApp:191 - Connection restablished
+2025-12-06 00:17:06,436 [INFO] NvicIntPanel:101 - NVIC parent = com.st.microxplorer.plugins.ip.nvic.MultiNvicIntPanel[,0,0,547x218,layout=javax.swing.BoxLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]
+2025-12-06 01:53:44,905 [INFO] WebApp:194 - Connection lost
+2025-12-06 01:53:45,045 [INFO] WebApp:191 - Connection restablished
+2025-12-06 02:12:57,339 [INFO] WebApp:194 - Connection lost
+2025-12-06 02:12:57,476 [INFO] WebApp:191 - Connection restablished
+2025-12-06 02:29:22,079 [INFO] WebApp:194 - Connection lost
+2025-12-06 02:29:22,423 [INFO] WebApp:191 - Connection restablished

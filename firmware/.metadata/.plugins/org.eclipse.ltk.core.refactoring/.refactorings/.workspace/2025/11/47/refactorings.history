@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;sensor_fusion/micro_ros_stm32cubemx_utils/microros_static_library_ide/libmicroros&apos;" deleteContents="false" description="Delete resource &apos;sensor_fusion/micro_ros_stm32cubemx_utils/microros_static_library_ide/libmicroros&apos;" element1="/sensor_fusion/micro_ros_stm32cubemx_utils/microros_static_library_ide/libmicroros" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1763578193926"/>
+</session>
