@@ -308,7 +308,7 @@ ros2 service call /spawn_killer std_srvs/srv/SetBool "{data: true}"
 **7. Visualize in RViz2**
 
 ```bash
-rviz2 -d lab2.rviz
+rviz2 -d src/lab2.rviz
 ```
 
 
