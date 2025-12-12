@@ -262,6 +262,13 @@ source install/setup.bash
 
 ## Usage
 
+**0. Source workspace** (**must do** evrytime that open new terminal)
+
+```bash
+cd ~/FRA502-LAB-6616 && . install/setup.bash
+```
+
+
 **1. Run turtlesim_plus**
 
 ```bash
@@ -299,7 +306,7 @@ ros2 run rqt_service_caller rqt_service_caller
 ```
 select service as a ```/spawn_turtle``` then call name as a 'turtle2'
 
-or you can spawn killer from terminel
+or you can spawn killer from terminal
 
 ```bash
 ros2 service call /spawn_killer std_srvs/srv/SetBool "{data: true}"
@@ -310,5 +317,3 @@ ros2 service call /spawn_killer std_srvs/srv/SetBool "{data: true}"
 ```bash
 rviz2 -d src/lab2.rviz
 ```
-
-
