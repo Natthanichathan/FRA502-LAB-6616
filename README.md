@@ -227,13 +227,20 @@ The diagram shows all communication links between:
 FRA502-LAB-6616/
 │── src/
 │   ├── lab2/
+│   │   ├── include/
+│   │   ├── lab2/
 │   │   ├── scripts/
+│   │   │   ├── dummy_script.py
 │   │   │   ├── eater.py
 │   │   │   ├── killer.py
-│   │   │   ├── turtlesim_pose.py
-│   └── turtlesim_plus/
+│   │   │   └── turtlesim_pose.py
+│   │   ├── src/
+│   │   ├── CMakeLists.txt
+│   │   └── package.xml
+│   ├── turtlesim_plus/
+│   └── lab2.rviz
 │── Architecture.png
-│── README.md
+└── README.md
 ```
 
 ## Installation
@@ -242,7 +249,7 @@ FRA502-LAB-6616/
 
 ```bash
 cd ~
-git clone -b LAB2 https://github.com/<your-org>/FRA502-LAB-6616.git
+git clone -b lab2 https://github.com/Natthanichathan/FRA502-LAB-6616.git
 ```
 
 **2. Build workspace**
