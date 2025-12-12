@@ -201,6 +201,12 @@ source install/setup.bash
 
 ## Usage
 
+**0. Source workspace** (**must do** evrytime that open new terminal)
+
+```bash
+cd ~/FRA502-LAB-6616 && . install/setup.bash
+```
+
 **1.** Run the full system using the launch file:
 
 ```bash
